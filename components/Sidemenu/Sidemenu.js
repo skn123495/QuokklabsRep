@@ -1,35 +1,37 @@
 import React from "react";
 import { View, StyleSheet, Dimensions } from "react-native";
-
-import {
-  Avatar,
-  Title,
-  Caption,
-  Paragraph,
-  Drawer,
-  Text,
-  TouchableRipple,
-  Switch,
-} from "react-native-paper";
+import { Avatar, Title, Caption, Paragraph, Drawer } from "react-native-paper";
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
-import {  MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Feather, MaterialIcons } from "@expo/vector-icons/build/Icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
 
 const vw = Dimensions.get("window").width / 100;
 const vh = Dimensions.get("window").height / 100;
 
 const SideMenu = (props) => {
-  const [cDarkTheme, setcDarkTheme] = React.useState(false);
-
-  const toggleTheme = () => {
-    setcDarkTheme(!cDarkTheme);
-  };
+  const navigation = useNavigation();
+  async function signOut() {
+    try {
+      await AsyncStorage.removeItem("token");
+      navigation.reset({ index: 0, routes: [{ name: "AuthStack" }] });
+    } catch (error) {
+      Alert.alert("Sorry", "Something Went Wrong");
+      setIsAuthenticating(false);
+    }
+  }
   return (
     <View style={{ flex: 1 }}>
       <DrawerContentScrollView {...props}>
         <View style={styles.userInfoSection}>
           <View style={{ flexDirection: "row", marginTop: 15 }}>
-            <Avatar.Image source={{uri:"https://avatars.githubusercontent.com/u/33257022?v=4"}} size={50} />
+            <Avatar.Image
+              source={{
+                uri: "https://avatars.githubusercontent.com/u/33257022?v=4",
+              }}
+              size={50}
+            />
             <View style={{ marginLeft: 15, flexDirection: "column" }}>
               <Title style={styles.title}>Sarabjeet Singh</Title>
               <Caption style={styles.caption}>Quokkalabs.com</Caption>
@@ -79,7 +81,7 @@ const SideMenu = (props) => {
           />
           <DrawerItem
             icon={() => (
-              <MaterialIcons 
+              <MaterialIcons
                 name="category"
                 style={{ fontSize: 2.8 * vh, color: "grey" }}
               />
@@ -103,30 +105,25 @@ const SideMenu = (props) => {
           />
         </Drawer.Section>
       </DrawerContentScrollView>
-       <DrawerItem
-          icon={() => (
-            <Feather
-              name="info"
-              style={{ fontSize: 2.8 * vh, color: "grey" }}
-            />
-          )}
-          label="Version 1.0.1"
-          onPress={() => {
-            signOut();
-          }}
-        />
-       {/* <DrawerItem
-          icon={() => (
-            <MaterialCommunityIcons
-              name="exit-to-app"
-              style={{ fontSize: 2.8 * vh, color: "grey" }}
-            />
-          )}
-          label="Sign Out"
-          onPress={() => {
-            signOut();
-          }}
-        /> */}
+      <DrawerItem
+        icon={() => (
+          <Feather name="info" style={{ fontSize: 2.8 * vh, color: "grey" }} />
+        )}
+        label="Version 1.0.1"
+        onPress={() => {
+          signOut();
+        }}
+      />
+      <DrawerItem
+        icon={() => (
+          <MaterialCommunityIcons
+            name="exit-to-app"
+            style={{ fontSize: 2.8 * vh, color: "grey" }}
+          />
+        )}
+        label="Sign Out"
+        onPress={() => signOut()}
+      />
     </View>
   );
 };

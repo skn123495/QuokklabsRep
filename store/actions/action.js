@@ -1,6 +1,6 @@
-import { CHANGE_THEME } from "../ActionTypes";
+import {APP_TOKEN} from '../ActionTypes';
 
-export const changeTheme = (type) => ({
-  type: CHANGE_THEME,
+export const getTokenAction = type => ({
+  type: APP_TOKEN,
   payload: type,
 });

@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useState } from "react";
+import { Alert, StyleSheet, View } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
-import FlatButton from '../ui/FlatButton';
-import AuthForm from './AuthForm';
-import { Colors } from '../../constants/styles';
+import FlatButton from "../ui/FlatButton";
+import AuthForm from "./AuthForm";
+import { Colors } from "../../constants/styles";
 
 function AuthContent({ isLogin, onAuthenticate }) {
   const navigation = useNavigation();
@@ -18,9 +18,9 @@ function AuthContent({ isLogin, onAuthenticate }) {
 
   function switchAuthModeHandler() {
     if (isLogin) {
-      navigation.replace('Signup');
+      navigation.navigate("Signup");
     } else {
-      navigation.replace('Login');
+      navigation.navigate("Login");
     }
   }
 
@@ -30,17 +30,38 @@ function AuthContent({ isLogin, onAuthenticate }) {
     email = email.trim();
     password = password.trim();
 
-    const emailIsValid = email.includes('@');
-    const passwordIsValid = password.length > 6;
+    const emailIsValid = email.includes("@");
+
+    function validatePassword(val) {
+      var p = val,
+        errors = [];
+      if (p.length < 8) {
+        errors.push("Your password must be at least 8 characters");
+      }
+      if (p.search(/[a-z]/i) < 0) {
+        errors.push("Your password must contain at least one letter.");
+      }
+      if (p.search(/[0-9]/) < 0) {
+        errors.push("Your password must contain at least one digit.");
+      }
+      if (errors.length > 0) {
+        alert(errors.join("\n"));
+        return false;
+      }
+      return true;
+    }
+
+    const passwordIsValid = validatePassword(password);
+
     const emailsAreEqual = email === confirmEmail;
     const passwordsAreEqual = password === confirmPassword;
-
+    if (!passwordIsValid) return;
     if (
       !emailIsValid ||
       !passwordIsValid ||
       (!isLogin && (!emailsAreEqual || !passwordsAreEqual))
     ) {
-      Alert.alert('Invalid input', 'Please check your entered credentials.');
+      Alert.alert("Invalid input", "Please check your entered credentials.");
       setCredentialsInvalid({
         email: !emailIsValid,
         confirmEmail: !emailIsValid || !emailsAreEqual,
@@ -61,7 +82,7 @@ function AuthContent({ isLogin, onAuthenticate }) {
       />
       <View style={styles.buttons}>
         <FlatButton onPress={switchAuthModeHandler}>
-          {isLogin ? 'Create a new user' : 'Log in instead'}
+          {isLogin ? "Create a new user" : "Log in instead"}
         </FlatButton>
       </View>
     </View>
@@ -78,7 +99,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: Colors.primary800,
     elevation: 2,
-    shadowColor: 'black',
+    shadowColor: "black",
     shadowOffset: { width: 1, height: 1 },
     shadowOpacity: 0.35,
     shadowRadius: 4,
