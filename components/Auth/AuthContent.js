@@ -1,14 +1,15 @@
-import { useState } from "react";
-import { Alert, StyleSheet, View } from "react-native";
+import React, { useState } from "react";
+import { Alert, Platform, StyleSheet, Text, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
 import FlatButton from "../ui/FlatButton";
 import AuthForm from "./AuthForm";
 import { Colors } from "../../constants/styles";
+import { Checkbox } from "react-native-paper";
 
 function AuthContent({ isLogin, onAuthenticate }) {
   const navigation = useNavigation();
-
+  const [checked, setChecked] = React.useState(false);
   const [credentialsInvalid, setCredentialsInvalid] = useState({
     email: false,
     password: false,
@@ -29,7 +30,6 @@ function AuthContent({ isLogin, onAuthenticate }) {
 
     email = email.trim();
     password = password.trim();
-
     const emailIsValid = email.includes("@");
 
     function validatePassword(val) {
@@ -51,7 +51,9 @@ function AuthContent({ isLogin, onAuthenticate }) {
       return true;
     }
 
-    const passwordIsValid = validatePassword(password);
+    const passwordIsValid = isLogin
+      ? password.length > 7
+      : validatePassword(password);
 
     const emailsAreEqual = email === confirmEmail;
     const passwordsAreEqual = password === confirmPassword;
@@ -70,6 +72,10 @@ function AuthContent({ isLogin, onAuthenticate }) {
       });
       return;
     }
+    if (!checked && isLogin) {
+      Alert.alert( "Please accept the terms and conditions");
+      return;
+    }
     onAuthenticate({ email, password });
   }
 
@@ -80,6 +86,40 @@ function AuthContent({ isLogin, onAuthenticate }) {
         onSubmit={submitHandler}
         credentialsInvalid={credentialsInvalid}
       />
+
+      {Platform.OS === "android" && isLogin && (
+        <View style={styles.checkContainOuter}>
+          <View>
+            <Checkbox
+              uncheckedColor={Colors.white}
+              color={Colors.white}
+              status={checked ? "checked" : "unchecked"}
+              onPress={() => {
+                setChecked(!checked);
+              }}
+            />
+          </View>
+          <Text style={{ color: Colors.white }}>
+            I accept the terms & conditions
+          </Text>
+        </View>
+      )}
+      {Platform.OS === "ios" && isLogin && (
+        <View style={styles.checkContainOuter}>
+          <View style={styles.checkContain}>
+            <Checkbox
+              color={Colors.white}
+              status={checked ? "checked" : "unchecked"}
+              onPress={() => {
+                setChecked(!checked);
+              }}
+            />
+          </View>
+          <Text style={{ color: Colors.white }}>
+            I accept the terms & conditions
+          </Text>
+        </View>
+      )}
       <View style={styles.buttons}>
         <FlatButton onPress={switchAuthModeHandler}>
           {isLogin ? "Create a new user" : "Log in instead"}
@@ -92,12 +132,26 @@ function AuthContent({ isLogin, onAuthenticate }) {
 export default AuthContent;
 
 const styles = StyleSheet.create({
+  checkContainOuter: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingTop: 10,
+  },
+  checkContain: {
+    borderColor: Colors.white,
+    borderWidth: 1,
+    width: 36,
+    height: 36,
+    borderRadius: 36 / 2,
+    alignItems: "center",
+    marginRight: 10,
+  },
   authContent: {
     marginTop: 64,
     marginHorizontal: 32,
     padding: 16,
     borderRadius: 8,
-    backgroundColor: Colors.primary800,
+    backgroundColor: "grey",
     elevation: 2,
     shadowColor: "black",
     shadowOffset: { width: 1, height: 1 },
